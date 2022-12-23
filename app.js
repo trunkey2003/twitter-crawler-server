@@ -15,8 +15,8 @@ const app = express();
 app.use(cors({ credentials: true, origin: [process.env.CLIENT_HOSTNAME_1, process.env.CLIENT_HOSTNAME_2]}));
 app.use(cookieParser());
 
-const db = require('./configs/db');
-db.connect();
+// const db = require('./configs/db');
+// db.connect();
 
 app.use(logger('dev'));
 app.use(express.json());
