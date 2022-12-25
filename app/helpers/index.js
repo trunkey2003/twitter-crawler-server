@@ -20,7 +20,8 @@ const handleMainTweetData = ({ $, article }) => {
 
     const tweetInteractionArray = [];
     article.find('span[data-testid="app-text-transition-container"]').each((i, el) => {
-        tweetInteractionArray.push($(el).text());
+        text = $(el).text() || '0';
+        tweetInteractionArray.push(text);
     });
     const tweetInteraction = {
         views: tweetInteractionArray[0],
@@ -56,7 +57,8 @@ const handleReplyTweetData = ({ $, article }) => {
 
     const tweetInteractionArray = [];
     article.find('span[data-testid="app-text-transition-container"]').each((i, el) => {
-        tweetInteractionArray.push($(el).text());
+        text = $(el).text() || '0';
+        tweetInteractionArray.push(text);
     });
 
     return {
