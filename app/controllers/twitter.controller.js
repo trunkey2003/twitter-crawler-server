@@ -13,6 +13,7 @@ options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
 options.addArguments("--headless");
 options.addArguments("--disable-gpu");
 options.addArguments("--no-sandbox");
+options.addArguments('--disable-dev-shm-usage');
 
 class TwitterController {
     async index(req, res, next) {
