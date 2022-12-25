@@ -1,15 +1,31 @@
-const { Builder, Browser, By, Key, until } = require("selenium-webdriver");
+const { Builder, Browser, By, until } = require("selenium-webdriver");
+const {
+    Options,
+    ServiceBuilder,
+} = require('selenium-webdriver/chrome');
 const fs = require('fs');
 const { response, handleHomeTimelineData } = require("../helpers");
 
+let options = new Options();
+
+options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
+options.addArguments("--headless");
+options.addArguments("--disable-gpu");
+options.addArguments("--no-sandbox");
+
 class TwitterController {
-    async index(req, res, next){
+    async index(req, res, next) {
         try {
             const twitterPostUrl = req.query.twitterPostUrl;
-            
+
             if (!twitterPostUrl) return response({ res, status: 400, message: "Bad Request" });
 
-            let driver = await new Builder().forBrowser(Browser.CHROME).build();
+            let serviceBuilder = new ServiceBuilder(process.env.CHROME_DRIVER_PATH);
+            let driver = await new Builder()
+                .forBrowser(Browser.CHROME)
+                .setChromeOptions(options)
+                .setChromeService(serviceBuilder)
+                .build();
 
             await driver.get(twitterPostUrl);
 
