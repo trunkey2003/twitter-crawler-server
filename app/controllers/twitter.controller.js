@@ -5,6 +5,7 @@ const {
 } = require('selenium-webdriver/chrome');
 const fs = require('fs');
 const { response, handleHomeTimelineData } = require("../helpers");
+require('chromedriver');
 
 let options = new Options();
 
