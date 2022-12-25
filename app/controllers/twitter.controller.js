@@ -45,10 +45,8 @@ class TwitterController {
 
             const result = handleHomeTimelineData(homeTimeline, homeTimelineHTML);
 
-            fs.writeFile(`${process.cwd()}/output/index.html`, homeTimelineHTML, err => {
-                if (err) throw err;
-                response({ res, data: result, status: 200, message: "Success" });
-            })
+            response({ res, data: result, status: 200, message: "Success" });
+            
             driver.quit();
         }
         catch (err) {
