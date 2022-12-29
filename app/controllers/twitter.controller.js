@@ -20,6 +20,7 @@ class TwitterController {
     async index(req, res, next) {
         try {
             const twitterPostUrl = req.query.twitterPostUrl;
+            const fetchTime = new Date();
 
             if (!twitterPostUrl) return response({ res, status: 400, message: "Bad Request" });
 
@@ -46,7 +47,7 @@ class TwitterController {
 
             const homeTimelineHTML = await homeTimeline.getAttribute("innerHTML");
 
-            const result = handleHomeTimelineData(homeTimeline, homeTimelineHTML);
+            const result = handleHomeTimelineData({twitterPostUrl, homeTimeline, homeTimelineHTML, fetchTime});
 
             await fs.writeFile(`${process.cwd()}/output/index.html`, homeTimelineHTML)
 

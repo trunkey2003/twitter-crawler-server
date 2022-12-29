@@ -1,5 +1,15 @@
 const cheerio = require('cheerio');
 
+const getTweetID = (url) => {
+    const tweetID = url.split('/').pop();
+    return tweetID;
+};
+
+const getTwitterUserURL = (username) => {
+    username = username.replace('@', '');
+    return `https://twitter.com/${username}`;
+};
+
 const handleMainTweetData = ({ $, article }) => {
     const divTweetUserAvatar = article.find('div[data-testid="Tweet-User-Avatar"]').first(); //find the first div element
     const autherAvatar = divTweetUserAvatar.find('img').first();
@@ -8,7 +18,7 @@ const handleMainTweetData = ({ $, article }) => {
     const divAutherUserName = article.find('div[data-testid="User-Names"]').find('div').first().next();
     const spanAutherName = divAutherName.find('span').first();
     const spanAutherUserName = divAutherUserName.find('span').first();
-    
+
     const divTweetText = article.find('div[data-testid="tweetText"]').first();
 
     let tweetPhotos = [];
@@ -34,6 +44,7 @@ const handleMainTweetData = ({ $, article }) => {
         autherAvatar: autherAvatar.attr('src'),
         autherName: spanAutherName.text(),
         autherUserName: spanAutherUserName.text(),
+        autherProfileUrl: getTwitterUserURL(spanAutherUserName.text()),
         tweetText: divTweetText.text(),
         tweetPhotos: tweetPhotos,
         timePosted: timePosted.attr('datetime'),
@@ -65,6 +76,7 @@ const handleReplyTweetData = ({ $, article }) => {
         autherAvatar: autherAvatar.attr('src'),
         autherName: spanAutherName.text(),
         autherUserName: spanAutherUserName.text(),
+        autherProfileUrl: getTwitterUserURL(spanAutherUserName.text()),
         tweetText: divTweetText.text(),
         timePosted: timePosted.attr('datetime'),
         views: tweetInteractionArray[0],
@@ -87,8 +99,7 @@ class HelperFunctions {
         return res.status(result.status).json(result)
     }
 
-    handleHomeTimelineData(homeTimeline, homeTimelineHTML) {
-        let result;
+    handleHomeTimelineData({ twitterPostUrl, homeTimeline, homeTimelineHTML, fetchTime }) {
         const $ = cheerio.load(cheerio.load(homeTimelineHTML).html()); //create a html file wraps 3 elements
 
         const sectionMainBlock = $('body').find('section').first(); //find the first section element
@@ -101,14 +112,17 @@ class HelperFunctions {
             } else {
                 replies.push(handleReplyTweetData({ $, article: $(e) }));
             }
-        })
+        });
 
 
         return {
+            tweetUrl: twitterPostUrl,
+            tweetID: getTweetID(twitterPostUrl),
+            fetchTime: fetchTime,
             tweetDetails: {
                 ...tweetData,
                 replies: replies,
-            }
+            },
         };
     }
 };
