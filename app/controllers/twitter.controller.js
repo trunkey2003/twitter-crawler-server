@@ -9,11 +9,11 @@ require('chromedriver');
 
 let options = new Options();
 let driverRef = null;
-// options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
-// options.addArguments("--headless");
-// options.addArguments("--disable-gpu");
-// options.addArguments("--no-sandbox");
-// options.addArguments('--disable-dev-shm-usage');
+options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
+options.addArguments("--headless");
+options.addArguments("--disable-gpu");
+options.addArguments("--no-sandbox");
+options.addArguments('--disable-dev-shm-usage');
 
 
 class TwitterController {
@@ -23,11 +23,11 @@ class TwitterController {
 
             if (!twitterPostUrl) return response({ res, status: 400, message: "Bad Request" });
 
-            // let serviceBuilder = new ServiceBuilder(process.env.CHROME_DRIVER_PATH);
+            let serviceBuilder = new ServiceBuilder(process.env.CHROME_DRIVER_PATH);
             let driver = await new Builder()
                 .forBrowser(Browser.CHROME)
-                // .setChromeOptions(options)
-                // .setChromeService(serviceBuilder)
+                .setChromeOptions(options)
+                .setChromeService(serviceBuilder)
                 .build();
 
             // reference to driver to close in case of error
@@ -48,7 +48,7 @@ class TwitterController {
 
             const result = handleHomeTimelineData(homeTimeline, homeTimelineHTML);
 
-            await fs.writeFile(`${process.cwd()}/output/index.html`, homeTimelineHTML)
+            // await fs.writeFile(`${process.cwd()}/output/index.html`, homeTimelineHTML)
 
             await driver.quit();
             response({ res, status: 200, message: "Success", data: result });
