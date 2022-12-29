@@ -12,7 +12,7 @@ const swaggerDocumentation = {
     servers: server,
     components: {},
     paths: {
-        '/api/v1/twitter': {
+        '/api/v1/twitter/getTwitterAnalysis': {
             get: {
                 tags: ["twitter"],
                 description: "Get information about a twitter post",

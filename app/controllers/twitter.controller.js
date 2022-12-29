@@ -8,6 +8,7 @@ const { response, handleHomeTimelineData } = require("../helpers");
 require('chromedriver');
 
 let options = new Options();
+let driverRef = null;
 // options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
 // options.addArguments("--headless");
 // options.addArguments("--disable-gpu");
@@ -28,6 +29,9 @@ class TwitterController {
                 // .setChromeOptions(options)
                 // .setChromeService(serviceBuilder)
                 .build();
+
+            // reference to driver to close in case of error
+            driverRef = driver;
 
             await driver.get(twitterPostUrl);
 
@@ -51,6 +55,7 @@ class TwitterController {
         }
         catch (err) {
             console.log(err);
+            driverRef.quit();
             response({ res, status: 500, message: "Error" });
         }
     }

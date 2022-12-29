@@ -3,6 +3,6 @@ var router = express.Router();
 
 const twitterController = require('../controllers/twitter.controller');
 
-router.get('/twitter', twitterController.index);
+router.get('/twitter/getTwitterAnalysis', twitterController.index);
 
 module.exports = router;
