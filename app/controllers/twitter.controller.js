@@ -4,7 +4,8 @@ const {
     ServiceBuilder,
 } = require('selenium-webdriver/chrome');
 const fs = require('fs/promises');
-const { response, handleHomeTimelineData } = require("../helpers");
+const { response } = require("../helpers");
+const {handleHomeTimelineData} = require("../services/twitter.service");
 require('chromedriver');
 
 let options = new Options();
@@ -42,12 +43,11 @@ class TwitterController {
                 ),
                 30000,
                 "Timed out after 30 seconds",
-                6000
+                10000
             );
-
             const homeTimelineHTML = await homeTimeline.getAttribute("innerHTML");
 
-            const result = handleHomeTimelineData({twitterPostUrl, homeTimeline, homeTimelineHTML, fetchTime});
+            const result = handleHomeTimelineData({ twitterPostUrl, homeTimeline, homeTimelineHTML, fetchTime });
 
             await fs.writeFile(`${process.cwd()}/output/index.html`, homeTimelineHTML)
 
