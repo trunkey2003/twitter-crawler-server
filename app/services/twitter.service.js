@@ -5,7 +5,7 @@ class TwitterService {
         //bind this pointer to class methods
         this.handleHomeTimelineData = this.handleHomeTimelineData.bind(this);
         this.handleTimelineExplore = this.handleTimelineExplore.bind(this);
-    }
+    } 
 
     twitterRegex() {
         return new RegExp(/^(((https?):\/\/)?(www.)?)twitter\.com(\/(\w){1,15})\/status\/[0-9]{19}$/);
@@ -68,14 +68,15 @@ class TwitterService {
 
         const tweetInteractionArray = [];
         article.find('span[data-testid="app-text-transition-container"]').each((i, el) => {
-            const text = $(el).text() || '0';
+            const text = $(el).text();
+            console.log(text)
             tweetInteractionArray.push(text);
         });
         const tweetInteraction = {
-            views: tweetInteractionArray[0],
-            retweets: tweetInteractionArray[1],
-            quoteTweets: tweetInteractionArray[2],
-            likes: tweetInteractionArray[3],
+            views: tweetInteractionArray[0] || '0',
+            retweets: tweetInteractionArray[1] || '0',
+            quoteTweets: tweetInteractionArray[2] || '0',
+            likes: tweetInteractionArray[3] || '0',
         }
 
         return {
@@ -124,6 +125,8 @@ class TwitterService {
             };
         });
 
+        const replyToDiv = article.find('div[class="css-1dbjc4n r-4qtqp9 r-zl2h9q"]').first();
+
         const tweetInteractionArray = [];
         article.find('span[data-testid="app-text-transition-container"]').each((i, el) => {
             const text = $(el).text() || '0';
@@ -131,11 +134,11 @@ class TwitterService {
         });
 
         const tweetInteraction = {
-            views: tweetInteractionArray[0],
-            replies: tweetInteractionArray[1],
-            retweets: tweetInteractionArray[2],
-            likes: tweetInteractionArray[3],
-        };
+            views: tweetInteractionArray[0] || '0',
+            retweets: tweetInteractionArray[1] || '0',
+            quoteTweets: tweetInteractionArray[2] || '0',
+            likes: tweetInteractionArray[3] || '0',
+        }
 
         let tweetUrl = '';
         const autherUserNameNoAtSign = spanAutherUserName.text().replace('@', '');
@@ -158,20 +161,13 @@ class TwitterService {
                 autherName: spanAutherName.text(),
                 autherUserName: spanAutherUserName.text(),
                 autherProfileUrl: this.getTwitterUserURL(spanAutherUserName.text()),
+                replyTo: replyToDiv.text(),
                 tweetText: divTweetText.text(),
                 tweetMedias: tweetMedias,
                 timePosted: timePosted.attr('datetime'),
                 tweetInteraction: tweetInteraction,
             }
         }
-    }
-
-    response({ res, data = {}, status = 500, message = '' }) {
-        const result = {}
-        result.status = status;
-        result.message = message;
-        result.data = data
-        return res.status(result.status).json(result)
     }
 
     handleHomeTimelineData({ twitterPostUrl, homeTimeline, homeTimelineHTML }) {
@@ -181,7 +177,7 @@ class TwitterService {
 
         const tweetReplies = [];
         let tweetData = {}
-        sectionMainBlock.find('article').each((i, e) => {
+        sectionMainBlock.find('article[data-testid="tweet"]').each((i, e) => {
             if (i === 0) {
                 tweetData = this.handleMainTweetData({ $, article: $(e) });
             } else {
