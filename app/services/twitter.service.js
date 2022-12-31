@@ -129,16 +129,16 @@ class TwitterService {
 
         const tweetInteractionArray = [];
         article.find('span[data-testid="app-text-transition-container"]').each((i, el) => {
-            const text = $(el).text() || '0';
+            const text = $(el).text();
             tweetInteractionArray.push(text);
         });
 
         const tweetInteraction = {
             views: tweetInteractionArray[0] || '0',
-            retweets: tweetInteractionArray[1] || '0',
-            quoteTweets: tweetInteractionArray[2] || '0',
+            replies: tweetInteractionArray[1] || '0',
+            retweets: tweetInteractionArray[2] || '0',
             likes: tweetInteractionArray[3] || '0',
-        }
+        };
 
         let tweetUrl = '';
         const autherUserNameNoAtSign = spanAutherUserName.text().replace('@', '');
