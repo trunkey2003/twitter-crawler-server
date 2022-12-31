@@ -3,18 +3,17 @@ const {
     Options,
     ServiceBuilder,
 } = require('selenium-webdriver/chrome');
-const fs = require('fs/promises');
 const { response } = require("../helpers");
 const { handleHomeTimelineData, handleTimelineExplore } = require("../services/twitter.service");
 require('chromedriver');
 
 let options = new Options();
-let driverRef = null;
 options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
 options.addArguments("--headless");
 options.addArguments("--disable-gpu");
 options.addArguments("--no-sandbox");
 options.addArguments('--disable-dev-shm-usage');
+let serviceBuilder = new ServiceBuilder(process.env.CHROME_DRIVER_PATH);
 
 
 class TwitterController {
@@ -25,7 +24,6 @@ class TwitterController {
 
             if (!twitterPostUrl) return response({ res, status: 400, message: "Bad Request" });
 
-            let serviceBuilder = new ServiceBuilder(process.env.CHROME_DRIVER_PATH);
             let driver = await new Builder()
                 .forBrowser(Browser.CHROME)
                 .setChromeOptions(options)
@@ -64,11 +62,10 @@ class TwitterController {
     async getTrendingHashtags(req, res, next) {
         let driverRef = null;
         try {
-            const fetchTime = new Date();
             let driver = await new Builder()
                 .forBrowser(Browser.CHROME)
-                // .setChromeOptions(options)
-                // .setChromeService(serviceBuilder)
+                .setChromeOptions(options)
+                .setChromeService(serviceBuilder)
                 .build();
 
             driverRef = driver;
@@ -84,10 +81,10 @@ class TwitterController {
             );
 
             const timelineExploreHTML = await timelineExplore.getAttribute("innerHTML");
-            await fs.writeFile(`${process.cwd()}/output/timelineExploreHTML.html`, timelineExploreHTML)
+            // await fs.writeFile(`${process.cwd()}/output/timelineExploreHTML.html`, timelineExploreHTML)
             const result = handleTimelineExplore({ timelineExploreHTML });
             response({ res, status: 200, message: "Success", data: result });
-            await driver.quit();
+            driver.quit();
         } catch (err) {
             console.log(err);
             driverRef.quit();
