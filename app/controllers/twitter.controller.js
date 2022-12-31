@@ -5,11 +5,10 @@ const {
 } = require('selenium-webdriver/chrome');
 const fs = require('fs/promises');
 const { response } = require("../helpers");
-const {handleHomeTimelineData} = require("../services/twitter.service");
+const { handleHomeTimelineData, handleTimelineExplore } = require("../services/twitter.service");
 require('chromedriver');
 
-let options = new Options();
-let driverRef = null;
+let options = new Options(); 
 // options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
 // options.addArguments("--headless");
 // options.addArguments("--disable-gpu");
@@ -19,9 +18,9 @@ let driverRef = null;
 
 class TwitterController {
     async index(req, res, next) {
+        let driverRef = null;
         try {
             const twitterPostUrl = req.query.twitterPostUrl;
-            const fetchTime = new Date();
 
             if (!twitterPostUrl) return response({ res, status: 400, message: "Bad Request" });
 
@@ -47,14 +46,48 @@ class TwitterController {
             );
             const homeTimelineHTML = await homeTimeline.getAttribute("innerHTML");
 
-            const result = handleHomeTimelineData({ twitterPostUrl, homeTimeline, homeTimelineHTML, fetchTime });
+            const result = handleHomeTimelineData({ twitterPostUrl, homeTimeline, homeTimelineHTML });
 
-            await fs.writeFile(`${process.cwd()}/output/index.html`, homeTimelineHTML)
+            await fs.writeFile(`${process.cwd()}/output/homeTimeLine.html`, homeTimelineHTML)
 
             await driver.quit();
             response({ res, status: 200, message: "Success", data: result });
         }
         catch (err) {
+            console.log(err);
+            driverRef.quit();
+            response({ res, status: 500, message: "Error" });
+        }
+    }
+
+    async getTrendingHashtags(req, res, next) {
+        let driverRef = null;
+        try {
+            const fetchTime = new Date();
+            let driver = await new Builder()
+                .forBrowser(Browser.CHROME)
+                // .setChromeOptions(options)
+                // .setChromeService(serviceBuilder)
+                .build();
+
+            driverRef = driver;
+            await driver.get('https://twitter.com');
+
+            let timelineExplore = await driver.wait(
+                until.elementLocated(
+                    By.css("div[aria-label='Timeline: Explore']")
+                ),
+                30000,
+                "Timed out after 30 seconds",
+                10000
+            );
+
+            const timelineExploreHTML = await timelineExplore.getAttribute("innerHTML");
+            await fs.writeFile(`${process.cwd()}/output/timelineExploreHTML.html`, timelineExploreHTML)
+            const result = handleTimelineExplore({ timelineExploreHTML });
+            response({ res, status: 200, message: "Success", data: result });
+            await driver.quit();
+        } catch (err) {
             console.log(err);
             driverRef.quit();
             response({ res, status: 500, message: "Error" });
