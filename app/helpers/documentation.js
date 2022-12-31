@@ -54,7 +54,7 @@ const swaggerDocumentation = {
         '/api/v1/twitter/getTrendingHashtags':{
             get: {
                 tags: ["twitter"],
-                description: "Get information about a twitter post",
+                description: "Get information about trending hashtags and topics",
                 responses: {
                     200: {
                         description: "Success",
