@@ -4,6 +4,7 @@ class TwitterService {
     constructor() {
         //bind this pointer to class methods
         this.handleHomeTimelineData = this.handleHomeTimelineData.bind(this);
+        this.handleTimelineExplore = this.handleTimelineExplore.bind(this);
     }
 
     twitterRegex() {
@@ -18,6 +19,10 @@ class TwitterService {
     getTweetID(url) {
         const tweetID = url.split('/').pop();
         return tweetID;
+    }
+
+    getTweetTrendLink(trend) {
+        return `https://twitter.com/search?q=${trend}&src=trend_click&vertical=trends`.replace('#', '%23');
     }
 
     // valdate the tweet url that from username input
@@ -169,7 +174,7 @@ class TwitterService {
         return res.status(result.status).json(result)
     }
 
-    handleHomeTimelineData({ twitterPostUrl, homeTimeline, homeTimelineHTML, fetchTime }) {
+    handleHomeTimelineData({ twitterPostUrl, homeTimeline, homeTimelineHTML }) {
         const $ = cheerio.load(cheerio.load(homeTimelineHTML).html()); //create a html file wraps 3 elements
 
         const sectionMainBlock = $('body').find('section').first(); //find the first section element
@@ -189,11 +194,39 @@ class TwitterService {
         return {
             tweetUrl: twitterPostUrl,
             tweetID: this.getTweetID(twitterPostUrl),
-            fetchTime: fetchTime,
+            fetchTime: new Date(),
             tweetDetails: {
                 ...tweetData,
                 tweetReplies: tweetReplies,
             },
+        };
+    }
+
+    handleTimelineExplore({ timelineExploreHTML }) {
+        const trendingHashtags = [];
+
+        const $ = cheerio.load(cheerio.load(timelineExploreHTML).html()); 
+
+        const body = $('body');
+        
+        body.find('div[data-testid="trend"]').each((i, e) => {
+            const firstDiv = $(e).find('div').first();
+            const trendingInfos = [];
+            $(firstDiv).find('div').each((i, e) => {
+                const text = $(e).text();
+                if (i !== 0 && text !== '') {
+                    trendingInfos.push(text);
+                }
+            });
+            trendingHashtags.push({
+                trendingLable: trendingInfos[0] || '',
+                trendingHashtag: trendingInfos[1] || '',
+                trendingTweetCount: trendingInfos[2] || '',
+                trendingURLSearch: this.getTweetTrendLink(trendingInfos[1] || ''),
+            });
+        });
+        return {
+            trendingHashtags: trendingHashtags,
         };
     }
 };
